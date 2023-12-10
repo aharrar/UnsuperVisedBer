@@ -5,3 +5,4 @@ data/
 other/
 new_data/
 .idea
+__pycache__/

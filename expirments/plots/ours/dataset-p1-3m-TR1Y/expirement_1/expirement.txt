@@ -1,0 +1,1 @@
+{"lr": 0.005, "dropout": 0.2, "weight_decay": 0.2, "batch_size": 128, "epochs": 200, "coef_1": 5, "save_weights": "C:\\Users\\avrah\\PycharmProjects\\UnsuperVisedBer\\expirments\\weights/ber/dataset-p1-3m-TR1Y/expirement_1", "plots_dir": "C:\\Users\\avrah\\PycharmProjects\\UnsuperVisedBer\\expirments\\plots/ours/dataset-p1-3m-TR1Y/expirement_1", "expirement_name": "expirement_1"}

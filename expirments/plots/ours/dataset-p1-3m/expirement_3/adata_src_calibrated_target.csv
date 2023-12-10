@@ -1,0 +1,7 @@
+,louvain1.0
+ARI,0
+NMI,0
+ASW_label,0.651
+ASW_label/batch,0.893
+BatchKL,[0.534]
+MMD,tensor(0.2524)

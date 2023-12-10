@@ -1,0 +1,7 @@
+venv/
+expirements/weights/
+expirements/plots/
+data/
+other/
+new_data/
+.idea

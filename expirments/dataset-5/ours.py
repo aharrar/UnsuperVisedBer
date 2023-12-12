@@ -8,6 +8,7 @@ import numpy as np
 import scanpy as sc
 import pandas as pd
 import torch
+
 torch.manual_seed(0)
 random.seed(0)
 np.random.seed(0)
@@ -66,20 +67,20 @@ data_dir = r"C:\Users\avrah\OneDrive\שולחן העבודה\batch_effect\datase
 parent_dir = Path(r'C:/Users/avrah/PycharmProjects/UnsuperVisedBer/expirments')
 
 config = {
-    "lr": np.random.uniform(1e-4, 2e-2, size=5).tolist(),  # Nuber of covariates in the data
+    "lr": [0.001],  # Nuber of covariates in the data
     # or just tune.grid_search([<list of lists>])
     "dropout": [0.2],  # or tune.choice([<list values>])
-    "weight_decay": [0.25,0.2],  # or tune.choice([<list values>])
-    "batch_size": [128, 64, 36],  # or tune.choice([<list values>])
+    "weight_decay": [0.25],  # or tune.choice([<list values>])
+    "batch_size": [128],  # or tune.choice([<list values>])
     "epochs": [300],
-    "coef_1": [50, 100, 150, 400, 800, 1000],
+    "coef_1": [800],
     "save_weights": [os.path.join(parent_dir, "weights/ber/dataset5-benchmark/")],
     "plots_dir": [os.path.join(parent_dir, "plots/ours/dataset5-benchmark/")]
 }
 dim_reduce_weights_path = os.path.join(config["save_weights"][0], "dim_reduce")
 os.makedirs(dim_reduce_weights_path, exist_ok=True)
 configurations = make_combinations_from_config(config)
-configurations = sample_from_space(configurations, num_of_samples=5)
+configurations = sample_from_space(configurations, num_of_samples=1)
 # configurations = [configurations[1]]
 if __name__ == "__main__":
     adata = sc.read_h5ad(os.path.join(data_dir, 'myTotalData_scale_with_pca.h5ad'))
@@ -88,13 +89,13 @@ if __name__ == "__main__":
     adata1 = adata[adata.obs['batch'] == 1, :].copy()
     adata2 = adata[adata.obs['batch'] == 2, :].copy()
     source, target, model_shrinking = pre_processing(adata1.X, adata2.X, num_epochs=20,
-                                                              load_weights_path=dim_reduce_weights_path)
+                                                     load_weights_path=dim_reduce_weights_path)
     adata1.obsm["dim_reduce"], adata2.obsm["dim_reduce"] = source, target
 
     for config in configurations:
         os.makedirs(config["save_weights"], exist_ok=True)
         os.makedirs(config["plots_dir"], exist_ok=True)
-        # plot_adata(adata, plot_dir=config["plots_dir"],embed='X_pca',label='celltype', title='before-calibrationp')
+        plot_adata(adata, plot_dir=config["plots_dir"],embed='X_pca',label='celltype', title='before-calibrationp')
         #
         # sc.pp.neighbors(adata, n_neighbors=15, n_pcs=20)
 

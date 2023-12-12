@@ -85,24 +85,44 @@ if __name__ == "__main__":
     adata1 = adata_dim_reduce[adata_dim_reduce.obs['batch'] == 1, :].copy()
     adata2 = adata_dim_reduce[adata_dim_reduce.obs['batch'] == 2, :].copy()
 
+    source, target, model_shrinking = pre_processing(adata1.X, adata2.X, num_epochs=100,
+                                                     save_weights_path=dim_reduce_weights_path)
+    adata1.obsm["dim_reduce"], adata2.obsm["dim_reduce"] = source, target
+
     for config in configurations:
         os.makedirs(config["save_weights"], exist_ok=True)
         os.makedirs(config["plots_dir"], exist_ok=True)
-        plot_adata(adata_dim_reduce, plot_dir=config["plots_dir"], title='before-calibrationp')
+        plot_adata(adata, plot_dir=config["plots_dir"],embed='X_pca',label='celltype', title='before-calibrationp')
+
         with open(os.path.join(config["plots_dir"], "expirement.txt"), 'w') as file:
             file.write(json.dumps(config))
-        adata1, adata2 = get_batch_from_adata(adata_dim_reduce)
+
+        silhouette_coeff_ASW(adata).to_csv(
+            os.path.join(config["plots_dir"], "ASW_orignal_adata.csv"))
+        evaluate_dataset(adata).to_csv(
+            os.path.join(config["plots_dir"], "orignal_adata.csv"))  # Set the batch key for each cell
+
         adata_target_calibrated_src, adata_src_calibrated_target = ber_for_notebook(config, adata1=adata1,
-                                                                                    adata2=adata2)
+                                                                                    adata2=adata2,
+                                                                                    model_shrinking=model_shrinking,
+                                                                                    embed='dim_reduce')
+
         adata_target_calibrated_src.X = np.array(model_shrinking.decoder(adata_target_calibrated_src.X))
         adata_src_calibrated_target.X = np.array(model_shrinking.decoder(adata_src_calibrated_target.X))
 
-        plot_adata(adata_target_calibrated_src, plot_dir=config["plots_dir"],
+        plot_adata(adata_target_calibrated_src,embed='X_pca', plot_dir=config["plots_dir"],
                    title='after-calibration-target_calibrated_src')
-        plot_adata(adata_src_calibrated_target, plot_dir=config["plots_dir"],
+        plot_adata(adata_src_calibrated_target,embed='X_pca', plot_dir=config["plots_dir"],
                    title='after-calibration-src_calibrated_target')
 
-        evaluate_dataset(adata_src_calibrated_target).to_csv(
-            os.path.join(config["plots_dir"], "adata_src_calibrated_target.csv"))  # Set the batch key for each cell
-        evaluate_dataset(adata_target_calibrated_src).to_csv(
+        silhouette_coeff_ASW(adata_src_calibrated_target).to_csv(os.path.join(config["plots_dir"],
+                                                                              "ASW_adata_src_calibrated_target.csv"))
+
+        silhouette_coeff_ASW(adata_target_calibrated_src).to_csv(os.path.join(config["plots_dir"],
+                                                                              "ASW_adata_target_calibrated_src.csv"))
+
+        evaluate_dataset(adata_src_calibrated_target, embed="X_pca").to_csv(
+            os.path.join(config["plots_dir"], "adata_src_calibrated_target.csv")) # Set the batch key for each cell
+
+        evaluate_dataset(adata_target_calibrated_src, embed="X_pca").to_csv(
             os.path.join(config["plots_dir"], "adata_target_calibrated_src.csv"))  # Set the batch key for each cell

@@ -60,6 +60,7 @@ if __name__ == "__main__":
     sc.pp.highly_variable_genes(t_adata, batch_key='batch', flavor='seurat_v3', n_top_genes=3000)
     # Regress out the batch effect
     sc.pp.regress_out(t_adata, ['batch'])
+
     t_adata.X = scaler.inverse_transform(t_adata.X)
     plot_adata(t_adata)
     adata1, adata2 = get_batch_from_adata(t_adata)

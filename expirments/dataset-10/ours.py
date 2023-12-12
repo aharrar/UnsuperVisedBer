@@ -89,13 +89,13 @@ if __name__ == "__main__":
     adata1 = adata[adata.obs['batch'] == 1, :].copy()
     adata2 = adata[adata.obs['batch'] == 2, :].copy()
     source, target, model_shrinking = pre_processing(adata1.X, adata2.X, num_epochs=100,
-                                                     save_weights_path=dim_reduce_weights_path)
+                                                     load_weights_path=dim_reduce_weights_path)
     adata1.obsm["dim_reduce"], adata2.obsm["dim_reduce"] = source, target
 
     for config in configurations:
         os.makedirs(config["save_weights"], exist_ok=True)
         os.makedirs(config["plots_dir"], exist_ok=True)
-        # plot_adata(adata, plot_dir=config["plots_dir"],embed='X_pca',label='celltype', title='before-calibrationp')
+        plot_adata(adata, plot_dir=config["plots_dir"],embed='X_pca',label='celltype', title='before-calibrationp')
         #
         # sc.pp.neighbors(adata, n_neighbors=15, n_pcs=20)
 
